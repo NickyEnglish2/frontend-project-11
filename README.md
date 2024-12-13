@@ -3,4 +3,4 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/5af58a1fd76ca5f6dd32/maintainability)](https://codeclimate.com/github/NickyEnglish2/frontend-project-11/maintainability)
 
-Демонстрация моего проекта: https://frontend-project-11-6tkf.vercel.app/
+Vercel моего проекта: https://vercel.com/nickyenglish2s-projects/frontend-project-11

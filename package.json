@@ -43,6 +43,8 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
+    "i18next": "^24.1.0",
+    "i18next-browser-languagedetector": "^8.0.2",
     "install": "^0.13.0",
     "npm": "^10.9.2",
     "on-change": "^5.0.1",

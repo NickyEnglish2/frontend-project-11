@@ -1,4 +1,5 @@
 import onChange from 'on-change';
+import i18next from '../i18n.js';
 
 export default (state, elements) => {
   const { form, feedback, input } = elements;
@@ -11,13 +12,15 @@ export default (state, elements) => {
         form.reset();
         input.focus();
       }
-    } else if (path === 'form.error') {
+    } else if (path === 'form.errorCode') {
       if (value) {
         input.classList.add('is-invalid');
-        feedback.textContent = value;
+        feedback.textContent = i18next.t(`errors.${value}`);
+        feedback.classList.add('text-danger');
       } else {
         input.classList.remove('is-invalid');
         feedback.textContent = '';
+        feedback.classList.remove('text-danger');
       }
     }
   });

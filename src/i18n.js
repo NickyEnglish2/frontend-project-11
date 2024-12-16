@@ -7,6 +7,9 @@ const resources = {
       errors: {
         invalidUrl: 'Invalid URL.',
         duplicate: 'RSS already added.',
+        invalidRss: 'Invalid RSS.',
+        networkError: 'Network error.',
+        fetchError: 'Failed to fetch stream. Check URL and try again.',
       },
       form: {
         submit: 'Add',
@@ -22,6 +25,9 @@ const resources = {
       errors: {
         invalidUrl: 'Некорректная ссылка.',
         duplicate: 'RSS уже добавлен.',
+        invalidRss: 'Некорректный RSS.',
+        networkError: 'Ошибка работы сети.',
+        fetchError: 'Не удалось скачать поток. Проверьте URL и повторите попытку.',
       },
       form: {
         submit: 'Добавить',

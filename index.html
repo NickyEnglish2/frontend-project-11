@@ -2,10 +2,11 @@
 <html lang="ru">
     <head>
         <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Hexlet Frontend Project</title>
+        <title>RSS aggregator</title>
     </head>
-    <body>
+    <body class="d-flex flex-column min-vh-100">
         <div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -33,12 +34,12 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-floating">
-                                        <input id="url-input" class="form-control w-100" autofocus="" required="" name="url" aria-label="url" placeholder="ссылка RSS" autocomplete="off">
+                                        <input type="text" name="url-input" id="url-input" class="form-control w-100" autofocus required aria-label="url" placeholder="Ссылка RSS">
                                         <label for="url-input">Ссылка RSS</label>
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    <button class="h-100 btn btn-lg btn-primary px-sm-5" type="submit" aria-label="add">Добавить</button>
+                                    <button id="submitBtn" class="h-100 btn btn-lg btn-primary px-sm-5" type="submit" aria-label="add">Добавить</button>
                                 </div>
                             </div>
                         </form>
@@ -49,8 +50,22 @@
            </section>
            <section class="container-fluid container-xxl p-5">
                 <div class="row">
-                    <div class="col-md-10 col-lg-8 order-1 mx-auto posts"></div>
-                    <div class="col-md-10 col-lg-4 mx-auto order-0 order-lg-1 feeds"></div>
+                    <div class="col-md-10 col-lg-8 order-1 mx-auto posts">
+                        <div class="card-border-0">
+                            <div class="card-body">
+                                <h2 class="card-title h4">Посты</h2>
+                            </div>
+                            <ul class="list-group border-0 rounded-0"></ul>
+                        </div>
+                    </div>
+                    <div class="col-md-10 col-lg-4 mx-auto order-0 order-lg-1 feeds">
+                        <div class="card-border-0">
+                            <div class="card-body">
+                                <h2 class="card-title h4">Фиды</h2>
+                            </div>
+                            <ul class="list-group border-0 rounded-0"></ul>
+                        </div>
+                    </div>
                 </div>
            </section>
         </main>

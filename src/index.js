@@ -1,6 +1,9 @@
+// @ts-check
+
 import './styles.scss';
 import 'bootstrap';
+import init from './code/init.js';
 
-import validation from './validation/validate.js';
-
-validation();
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+});

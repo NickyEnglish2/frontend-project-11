@@ -49,5 +49,5 @@ export default (link, postIndex, feedIndex) => axios.get(`https://allorigins.hex
     if (err.message === 'notContaining') {
       throw new Error(err.message);
     }
-    throw new Error('networkError');
+    throw new Error('networkErr');
   });

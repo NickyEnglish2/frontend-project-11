@@ -11,6 +11,9 @@ const config = {
     path: path.resolve(__dirname, 'dist'),
   },
   devServer: {
+    client: {
+      overlay: false,
+    },
     open: true,
     host: 'localhost',
   },

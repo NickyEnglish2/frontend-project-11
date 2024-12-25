@@ -1,11 +1,11 @@
 export default {
   translation: {
     feedback: {
-      invalid: 'Некорректная ссылка.',
+      invalid: 'Ссылка должна быть валидным URL',
       success: 'RSS успешно загружен',
-      alreadyExists: 'Канал RSS уже существует.',
-      networkErr: 'Ошибка сети. Попробуйте снова.',
-      notContaining: 'Ресурс не содержит валидный RSS.',
+      alreadyExists: 'RSS уже существует',
+      networkErr: 'Ошибка сети',
+      notContaining: 'Ресурс не содержит валидный RSS',
     },
     watchBtn: 'Просмотр.',
   },

@@ -2,7 +2,7 @@ export default {
   translation: {
     feedback: {
       invalid: 'Некорректная ссылка.',
-      success: 'Канал успешно добавлен.',
+      success: 'RSS успешно загружен',
       alreadyExists: 'Канал RSS уже существует.',
       networkErr: 'Ошибка сети. Попробуйте снова.',
       notContaining: 'Ресурс не содержит валидный RSS.',

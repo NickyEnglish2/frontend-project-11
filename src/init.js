@@ -2,7 +2,7 @@
 
 import i18next from 'i18next';
 import * as yup from 'yup';
-import ru from '../i18next/ru_local.js';
+import ru from './ru_locale.js';
 import app from './main.js';
 
 export default () => {

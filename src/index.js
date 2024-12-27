@@ -2,8 +2,6 @@
 
 import './styles.scss';
 import 'bootstrap';
-import init from './code/init.js';
+import init from './init.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-  init();
-});
+init();

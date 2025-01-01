@@ -1,9 +1,16 @@
+import axios from 'axios';
 import onChange from 'on-change';
 import i18next from 'i18next';
 import * as yup from 'yup';
 import { displayStatus, toggleForm, render } from './view.js';
 import ru from './ru_locale.js';
 import parse from './parse.js';
+
+const fetchData = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}&disableCache=true`)
+  .then(({ data }) => data.contents)
+  .catch(() => {
+    throw new Error('networkErr');
+  });
 
 const updatePosts = (state) => {
   const parsed = state.current.map((feed, index) => {
@@ -13,9 +20,11 @@ const updatePosts = (state) => {
     const { id: feedIndex } = currentFeed;
     const { id: startIndex } = currentPosts[0];
 
-    return parse(feed, startIndex, feedIndex)
-      .then(({ posts }) => posts
-        .filter(({ title }) => !postsTitles.includes(title)));
+    return fetchData(feed)
+      .then((data) => {
+        const parsedData = parse(data, startIndex, feedIndex);
+        return parsedData.posts.filter(({ title }) => !postsTitles.includes(title));
+      });
   });
 
   Promise.all(parsed)
@@ -78,6 +87,7 @@ export default () => {
           return;
         }
         schema.validate(value)
+          .then(fetchData)
           .then((data) => {
             const postIndex = watchedState.posts.length;
             const feedIndex = watchedState.feeds.length;

@@ -1,9 +1,14 @@
 const parse = (data, postIndex, feedIndex) => {
   const parser = new DOMParser();
   const parsed = parser.parseFromString(data, 'text/xml');
+
   const feedTitle = parsed.querySelector('title');
   const feedDescription = parsed.querySelector('description');
   const feedLink = parsed.querySelector('link');
+
+  if (!feedTitle || !feedDescription || !feedLink) {
+    throw new Error('notContaining');
+  }
 
   const result = {
     feed: {

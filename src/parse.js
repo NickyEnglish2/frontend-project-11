@@ -10,14 +10,11 @@ const parse = (data, postIndex, feedIndex) => {
     throw new Error('notContaining');
   }
 
-  const result = {
-    feed: {
-      id: feedIndex,
-      title: feedTitle.textContent,
-      description: feedDescription.textContent,
-      link: feedLink.textContent,
-    },
-    posts: [],
+  const feed = {
+    id: feedIndex,
+    title: feedTitle.textContent,
+    description: feedDescription.textContent,
+    link: feedLink.textContent,
   };
 
   const itemList = parsed.querySelectorAll('item');
@@ -25,21 +22,25 @@ const parse = (data, postIndex, feedIndex) => {
     throw new Error('notContaining');
   }
 
-  itemList.forEach((item, index) => {
+  const posts = Array.from(itemList).map((item, index) => {
     const link = item.querySelector('link');
     const title = item.querySelector('title');
     const description = item.querySelector('description');
-    const obj = {
+
+    if (!link || !title || !description) {
+      throw new Error('notContaining');
+    }
+
+    return {
       id: index + postIndex,
       feedIndex,
       link: link.textContent,
       title: title.textContent,
       description: description.textContent,
     };
-    result.posts.push(obj);
   });
 
-  return result;
+  return { feed, posts };
 };
 
 export default parse;

@@ -36,8 +36,9 @@ const createPostList = (state, nextInstance) => {
   state.posts.forEach((post) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+
     const link = document.createElement('a');
-    if (state.readed.includes(post.id)) {
+    if (state.viewedPostsIds.includes(post.id)) {
       link.classList.add('fw-normal', 'link-secondary');
     } else {
       link.classList.add('fw-bold');
@@ -54,6 +55,7 @@ const createPostList = (state, nextInstance) => {
     button.dataset.bsToggle = 'modal';
     button.dataset.bsTarget = '#modal';
     button.textContent = nextInstance('watchBtn');
+
     li.append(link, button);
     children.push(li);
   });
@@ -88,25 +90,42 @@ const render = (state, nextInstance) => {
   const posts = document.querySelector('.posts');
 
   posts.addEventListener('click', (e) => {
-    const post = state.posts.find(({ id }) => id === +e.target.dataset.id);
-    const link = document.querySelector(`a[data-id="${post.id}"]`);
-    link.classList.replace('fw-bold', 'fw-normal');
-    link.classList.add('link-secondary');
+    const postId = +e.target.dataset.id;
+    const post = state.posts.find(({ id }) => id === postId);
 
-    const findReaded = state.readed.find(({ id }) => id === post.id);
-    if (findReaded === undefined) {
-      state.readed.push(post.id);
+    if (post) {
+      const link = document.querySelector(`a[data-id="${post.id}"]`);
+      link.classList.replace('fw-bold', 'fw-normal');
+      link.classList.add('link-secondary');
+
+      const updatedViewedPostsIds = state.viewedPostsIds.includes(post.id)
+        ? state.viewedPostsIds
+        : [...state.viewedPostsIds, post.id];
+
+      const newState = {
+        ...state,
+        viewedPostsIds: updatedViewedPostsIds,
+        modalPostId: post.id,
+      };
+
+      Object.assign(state, newState);
+
+      const title = document.querySelector('.modal-title');
+      title.textContent = post.title;
+
+      const body = document.querySelector('.modal-body');
+      body.textContent = post.description;
+
+      const modalLink = document.querySelector('a.full-article');
+      modalLink.setAttribute('href', post.link);
     }
-
-    const title = document.querySelector('.modal-title');
-    title.textContent = post.title;
-
-    const body = document.querySelector('.modal-body');
-    body.textContent = post.description;
-
-    const modalLink = document.querySelector('a.full-article');
-    modalLink.setAttribute('href', post.link);
   });
+
+  if (state.status === 'failed') {
+    displayStatus(state.status, nextInstance(`feedback.${state.error}`));
+  } else if (state.status === 'success') {
+    displayStatus(state.status, nextInstance('feedback.success'));
+  }
 
   createPostList(state, nextInstance);
   createFeedList(state);

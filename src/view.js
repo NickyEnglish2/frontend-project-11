@@ -29,37 +29,48 @@ const toggleForm = (flag) => {
   }
 };
 
+const createPostLink = (post, state) => {
+  const link = document.createElement('a');
+  link.textContent = post.title;
+  link.setAttribute('href', post.link);
+  link.setAttribute('target', '_blank');
+  link.dataset.id = post.id;
+
+  if (state.viewedPostsIds.includes(post.id)) {
+    link.classList.add('fw-normal', 'link-secondary');
+  } else {
+    link.classList.add('fw-bold');
+  }
+
+  return link;
+};
+
+const createPostButton = (post, nextInstance) => {
+  const button = document.createElement('button');
+  button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  button.setAttribute('type', 'button');
+  button.dataset.id = post.id;
+  button.dataset.bsToggle = 'modal';
+  button.dataset.bsTarget = '#modal';
+  button.textContent = nextInstance('watchBtn');
+
+  return button;
+};
+
+const createPostListItem = (post, state, nextInstance) => {
+  const li = document.createElement('li');
+  li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+
+  const link = createPostLink(post, state);
+  const button = createPostButton(post, nextInstance);
+
+  li.append(link, button);
+  return li;
+};
+
 const createPostList = (state, nextInstance) => {
   const list = document.querySelector('.posts ul');
-  const children = [];
-
-  state.posts.forEach((post) => {
-    const li = document.createElement('li');
-    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-
-    const link = document.createElement('a');
-    if (state.viewedPostsIds.includes(post.id)) {
-      link.classList.add('fw-normal', 'link-secondary');
-    } else {
-      link.classList.add('fw-bold');
-    }
-    link.textContent = post.title;
-    link.setAttribute('href', post.link);
-    link.setAttribute('target', '_blank');
-    link.dataset.id = post.id;
-
-    const button = document.createElement('button');
-    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    button.setAttribute('type', 'button');
-    button.dataset.id = post.id;
-    button.dataset.bsToggle = 'modal';
-    button.dataset.bsTarget = '#modal';
-    button.textContent = nextInstance('watchBtn');
-
-    li.append(link, button);
-    children.push(li);
-  });
-
+  const children = state.posts.map((post) => createPostListItem(post, state, nextInstance));
   list.replaceChildren(...children);
 };
 
@@ -86,40 +97,49 @@ const createFeedList = (state) => {
   list.replaceChildren(...children);
 };
 
+const updatePostLinkStyles = (post) => {
+  const link = document.querySelector(`a[data-id="${post.id}"]`);
+  link.classList.replace('fw-bold', 'fw-normal');
+  link.classList.add('link-secondary');
+};
+
+const updateStateWithViewedPost = (state, post) => {
+  const updatedViewedPostsIds = state.viewedPostsIds.includes(post.id)
+    ? state.viewedPostsIds
+    : [...state.viewedPostsIds, post.id];
+
+  Object.assign(state, {
+    ...state,
+    viewedPostsIds: updatedViewedPostsIds,
+    modalPostId: post.id,
+  });
+};
+
+const updateModalContent = (post) => {
+  const title = document.querySelector('.modal-title');
+  title.textContent = post.title;
+
+  const body = document.querySelector('.modal-body');
+  body.textContent = post.description;
+
+  const modalLink = document.querySelector('a.full-article');
+  modalLink.setAttribute('href', post.link);
+};
+
+const handlePostClick = (state) => (e) => {
+  const postId = +e.target.dataset.id;
+  const post = state.posts.find(({ id }) => id === postId);
+
+  if (!post) return;
+
+  updatePostLinkStyles(post);
+  updateStateWithViewedPost(state, post);
+  updateModalContent(post);
+};
+
 const render = (state, nextInstance) => {
   const posts = document.querySelector('.posts');
-
-  posts.addEventListener('click', (e) => {
-    const postId = +e.target.dataset.id;
-    const post = state.posts.find(({ id }) => id === postId);
-
-    if (post) {
-      const link = document.querySelector(`a[data-id="${post.id}"]`);
-      link.classList.replace('fw-bold', 'fw-normal');
-      link.classList.add('link-secondary');
-
-      const updatedViewedPostsIds = state.viewedPostsIds.includes(post.id)
-        ? state.viewedPostsIds
-        : [...state.viewedPostsIds, post.id];
-
-      const newState = {
-        ...state,
-        viewedPostsIds: updatedViewedPostsIds,
-        modalPostId: post.id,
-      };
-
-      Object.assign(state, newState);
-
-      const title = document.querySelector('.modal-title');
-      title.textContent = post.title;
-
-      const body = document.querySelector('.modal-body');
-      body.textContent = post.description;
-
-      const modalLink = document.querySelector('a.full-article');
-      modalLink.setAttribute('href', post.link);
-    }
-  });
+  posts.addEventListener('click', handlePostClick(state));
 
   if (state.status === 'failed') {
     displayStatus(state.status, nextInstance(`feedback.${state.error}`));

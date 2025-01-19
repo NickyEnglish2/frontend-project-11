@@ -66,7 +66,7 @@ export default () => {
     feeds: [],
     posts: [],
     status: 'idle', // idle, loading, failed, success
-    error: null,
+    error: null, // Сюда будем записывать ошибки
     viewedPostsIds: [],
     modalPostId: null,
   };
@@ -102,10 +102,12 @@ export default () => {
       formElement?.addEventListener('submit', (e) => {
         e.preventDefault();
         watchedState.status = 'loading';
-
+        watchedState.error = null;
         const { value } = formElement.elements['url-input'];
+
         if (watchedState.feeds.some((feed) => feed.url === value)) {
-          watchedState.status = 'alreadyExists';
+          watchedState.status = 'failed';
+          watchedState.error = 'alreadyExists';
           return;
         }
 

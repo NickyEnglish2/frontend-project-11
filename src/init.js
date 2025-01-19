@@ -66,7 +66,7 @@ export default () => {
     feeds: [],
     posts: [],
     status: 'idle', // idle, loading, failed, success
-    error: null, // Сюда будем записывать ошибки
+    error: null,
     viewedPostsIds: [],
     modalPostId: null,
   };

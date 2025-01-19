@@ -15,20 +15,6 @@ const displayStatus = (status, text) => {
   feedback.textContent = text;
 };
 
-const toggleForm = (flag) => {
-  const input = document.querySelector('#url-input');
-  const submitButton = document.querySelector('#submitBtn');
-
-  if (flag) {
-    input.setAttribute('readonly', 'true');
-    submitButton.setAttribute('disabled', '');
-  } else {
-    input.removeAttribute('readonly');
-    submitButton.removeAttribute('disabled');
-    input.value = '';
-  }
-};
-
 const createPostLink = (post, state) => {
   const link = document.createElement('a');
   link.textContent = post.title;
@@ -97,50 +83,7 @@ const createFeedList = (state) => {
   list.replaceChildren(...children);
 };
 
-const updatePostLinkStyles = (post) => {
-  const link = document.querySelector(`a[data-id="${post.id}"]`);
-  link.classList.replace('fw-bold', 'fw-normal');
-  link.classList.add('link-secondary');
-};
-
-const updateStateWithViewedPost = (state, post) => {
-  const updatedViewedPostsIds = state.viewedPostsIds.includes(post.id)
-    ? state.viewedPostsIds
-    : [...state.viewedPostsIds, post.id];
-
-  Object.assign(state, {
-    ...state,
-    viewedPostsIds: updatedViewedPostsIds,
-    modalPostId: post.id,
-  });
-};
-
-const updateModalContent = (post) => {
-  const title = document.querySelector('.modal-title');
-  title.textContent = post.title;
-
-  const body = document.querySelector('.modal-body');
-  body.textContent = post.description;
-
-  const modalLink = document.querySelector('a.full-article');
-  modalLink.setAttribute('href', post.link);
-};
-
-const handlePostClick = (state) => (e) => {
-  const postId = +e.target.dataset.id;
-  const post = state.posts.find(({ id }) => id === postId);
-
-  if (!post) return;
-
-  updatePostLinkStyles(post);
-  updateStateWithViewedPost(state, post);
-  updateModalContent(post);
-};
-
 const render = (state, nextInstance) => {
-  const posts = document.querySelector('.posts');
-  posts.addEventListener('click', handlePostClick(state));
-
   if (state.status === 'failed') {
     displayStatus(state.status, nextInstance(`feedback.${state.error}`));
   } else if (state.status === 'success') {
@@ -151,4 +94,4 @@ const render = (state, nextInstance) => {
   createFeedList(state);
 };
 
-export { displayStatus, toggleForm, render };
+export { displayStatus, render };

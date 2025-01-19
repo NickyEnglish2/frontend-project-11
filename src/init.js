@@ -2,9 +2,10 @@ import axios from 'axios';
 import onChange from 'on-change';
 import i18next from 'i18next';
 import * as yup from 'yup';
-import { displayStatus, toggleForm, render } from './view.js';
+import { displayStatus, render } from './view.js';
 import ru from './ru_locale.js';
 import parse from './parse.js';
+import initControllers from './controller.js';
 
 const fetchData = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}&disableCache=true`)
   .then(({ data }) => data.contents)
@@ -100,26 +101,13 @@ export default () => {
       const formElement = document.querySelector('form');
       formElement?.addEventListener('submit', (e) => {
         e.preventDefault();
-        toggleForm(true);
+        watchedState.status = 'loading';
 
         const { value } = formElement.elements['url-input'];
         if (watchedState.feeds.some((feed) => feed.url === value)) {
-          const newState = {
-            ...watchedState,
-            status: 'alreadyExists',
-          };
-
-          Object.assign(watchedState, newState);
-          toggleForm(false);
+          watchedState.status = 'alreadyExists';
           return;
         }
-
-        const newState = {
-          ...watchedState,
-          status: 'loading',
-        };
-
-        Object.assign(watchedState, newState);
 
         schema.validate(value)
           .then(() => fetchData(value))
@@ -139,21 +127,11 @@ export default () => {
             watchedState.posts = [...parsedData.posts, ...watchedState.posts];
           })
           .catch((err) => {
-            if (err.message === 'networkErr') {
-              watchedState.status = 'failed';
-              watchedState.error = 'networkErr';
-            } else if (err.message === 'invalid') {
-              watchedState.status = 'failed';
-              watchedState.error = 'invalid';
-            } else if (err.message === 'notContaining') {
-              watchedState.status = 'failed';
-              watchedState.error = 'notContaining';
-            } else {
-              watchedState.status = 'failed';
-              watchedState.error = 'unknownError';
-            }
-          })
-          .finally(() => toggleForm(false));
+            watchedState.status = 'failed';
+            watchedState.error = err.message;
+          });
       });
+
+      initControllers(watchedState);
     });
 };

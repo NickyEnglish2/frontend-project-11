@@ -1,8 +1,7 @@
 import axios from 'axios';
-import onChange from 'on-change';
 import i18next from 'i18next';
 import * as yup from 'yup';
-import { displayStatus, render } from './view.js';
+import initView from './view.js';
 import ru from './ru_locale.js';
 import parse from './parse.js';
 
@@ -87,13 +86,7 @@ export default () => {
     })
     .then((t) => {
       const schema = yup.string().url();
-      const watchedState = onChange(state, (path, value) => {
-        if (path === 'status') {
-          displayStatus(value, t(`feedback.${value}`));
-        } else if (path === 'posts' || path === 'viewedPostsIds' || path === 'modalPostId') {
-          render(watchedState, t);
-        }
-      });
+      const watchedState = initView(state, t);
 
       setTimeout(() => updatePosts(watchedState), 5000);
 

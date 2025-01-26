@@ -1,3 +1,5 @@
+import onChange from 'on-change';
+
 const displayStatus = (status, text) => {
   const input = document.querySelector('#url-input');
   const feedback = document.querySelector('.feedback');
@@ -106,4 +108,16 @@ const render = (state, nextInstance) => {
   updatePostStyles(state);
 };
 
-export { displayStatus, render };
+const initView = (state, i18nInstance) => {
+  const watchedState = onChange(state, (path, value) => {
+    if (path === 'status') {
+      displayStatus(value, i18nInstance(`feedback.${value}`));
+    } else if (path === 'posts' || path === 'viewedPostsIds' || path === 'modalPostId') {
+      render(watchedState, i18nInstance);
+    }
+  });
+
+  return watchedState;
+};
+
+export default initView;

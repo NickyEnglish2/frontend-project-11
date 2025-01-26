@@ -5,7 +5,6 @@ import * as yup from 'yup';
 import { displayStatus, render } from './view.js';
 import ru from './ru_locale.js';
 import parse from './parse.js';
-import initControllers from './controller.js';
 
 const fetchData = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}&disableCache=true`)
   .then(({ data }) => data.contents)
@@ -134,6 +133,36 @@ export default () => {
           });
       });
 
-      initControllers(watchedState);
+      const updateModalContent = (post) => {
+        const title = document.querySelector('.modal-title');
+        title.textContent = post.title;
+
+        const body = document.querySelector('.modal-body');
+        body.textContent = post.description;
+
+        const modalLink = document.querySelector('a.full-article');
+        modalLink.setAttribute('href', post.link);
+      };
+
+      const handlePostClick = (e) => {
+        const postId = +e.target.dataset.id;
+        const post = watchedState.posts.find(({ id }) => id === postId);
+
+        if (!post) return;
+
+        const updatedViewedPostsIds = watchedState.viewedPostsIds.includes(post.id)
+          ? watchedState.viewedPostsIds
+          : [...watchedState.viewedPostsIds, post.id];
+
+        Object.assign(watchedState, {
+          viewedPostsIds: updatedViewedPostsIds,
+          modalPostId: post.id,
+        });
+
+        updateModalContent(post);
+      };
+
+      const posts = document.querySelector('.posts');
+      posts.addEventListener('click', handlePostClick);
     });
 };

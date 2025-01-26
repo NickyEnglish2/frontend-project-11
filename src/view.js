@@ -83,6 +83,17 @@ const createFeedList = (state) => {
   list.replaceChildren(...children);
 };
 
+const updatePostStyles = (state) => {
+  const links = document.querySelectorAll('.posts a[data-id]');
+  links.forEach((link) => {
+    const postId = +link.dataset.id;
+    if (state.viewedPostsIds.includes(postId)) {
+      link.classList.replace('fw-bold', 'fw-normal');
+      link.classList.add('link-secondary');
+    }
+  });
+};
+
 const render = (state, nextInstance) => {
   if (state.status === 'failed') {
     displayStatus(state.status, nextInstance(`feedback.${state.error}`));
@@ -92,6 +103,7 @@ const render = (state, nextInstance) => {
 
   createPostList(state, nextInstance);
   createFeedList(state);
+  updatePostStyles(state);
 };
 
 export { displayStatus, render };

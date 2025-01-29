@@ -96,6 +96,17 @@ const updatePostStyles = (state) => {
   });
 };
 
+const updateModalContent = (state) => {
+  if (state.modalPostId !== null) {
+    const post = state.posts.find(({ id }) => id === state.modalPostId);
+    if (post) {
+      document.querySelector('.modal-title').textContent = post.title;
+      document.querySelector('.modal-body').textContent = post.description;
+      document.querySelector('a.full-article').setAttribute('href', post.link);
+    }
+  }
+};
+
 const render = (state, nextInstance) => {
   if (state.status === 'failed') {
     displayStatus(state.status, nextInstance(`feedback.${state.error}`));
@@ -106,6 +117,7 @@ const render = (state, nextInstance) => {
   createPostList(state, nextInstance);
   createFeedList(state);
   updatePostStyles(state);
+  updateModalContent(state);
 };
 
 const initView = (state, i18nInstance) => {

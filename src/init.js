@@ -126,33 +126,19 @@ export default () => {
           });
       });
 
-      const updateModalContent = (post) => {
-        const title = document.querySelector('.modal-title');
-        title.textContent = post.title;
-
-        const body = document.querySelector('.modal-body');
-        body.textContent = post.description;
-
-        const modalLink = document.querySelector('a.full-article');
-        modalLink.setAttribute('href', post.link);
-      };
-
       const handlePostClick = (e) => {
         const postId = +e.target.dataset.id;
-        const post = watchedState.posts.find(({ id }) => id === postId);
 
-        if (!post) return;
+        if (!postId) return;
 
-        const updatedViewedPostsIds = watchedState.viewedPostsIds.includes(post.id)
+        const updatedViewedPostsIds = watchedState.viewedPostsIds.includes(postId)
           ? watchedState.viewedPostsIds
-          : [...watchedState.viewedPostsIds, post.id];
+          : [...watchedState.viewedPostsIds, postId];
 
         Object.assign(watchedState, {
           viewedPostsIds: updatedViewedPostsIds,
-          modalPostId: post.id,
+          modalPostId: postId,
         });
-
-        updateModalContent(post);
       };
 
       const posts = document.querySelector('.posts');

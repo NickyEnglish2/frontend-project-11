@@ -1,98 +1,73 @@
 import onChange from 'on-change';
 
-const displayStatus = (status, text) => {
+const displayStatus = (status, error, i18nInstance) => {
   const input = document.querySelector('#url-input');
   const feedback = document.querySelector('.feedback');
   const addClass = status === 'success' ? 'text-success' : 'text-danger';
   const removeClass = status === 'success' ? 'text-danger' : 'text-success';
 
-  if (status === 'success') {
-    input.classList.remove('is-invalid');
-  } else {
-    input.classList.add('is-invalid');
-  }
-
-  feedback.classList.add(addClass);
-  feedback.classList.remove(removeClass);
-  feedback.textContent = text;
+  input.classList.toggle('is-invalid', status !== 'success');
+  feedback.classList.replace(removeClass, addClass);
+  feedback.textContent = i18nInstance(`feedback.${error || status}`);
 };
 
-const createPostLink = (post, state) => {
-  const link = document.createElement('a');
-  link.textContent = post.title;
-  link.setAttribute('href', post.link);
-  link.setAttribute('target', '_blank');
-  link.dataset.id = post.id;
-
-  if (state.viewedPostsIds.includes(post.id)) {
-    link.classList.add('fw-normal', 'link-secondary');
-  } else {
-    link.classList.add('fw-bold');
-  }
-
-  return link;
-};
-
-const createPostButton = (post, nextInstance) => {
-  const button = document.createElement('button');
-  button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-  button.setAttribute('type', 'button');
-  button.dataset.id = post.id;
-  button.dataset.bsToggle = 'modal';
-  button.dataset.bsTarget = '#modal';
-  button.textContent = nextInstance('watchBtn');
-
-  return button;
-};
-
-const createPostListItem = (post, state, nextInstance) => {
-  const li = document.createElement('li');
-  li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-
-  const link = createPostLink(post, state);
-  const button = createPostButton(post, nextInstance);
-
-  li.append(link, button);
-  return li;
-};
-
-const createPostList = (state, nextInstance) => {
+const renderPosts = (state, nextInstance) => {
   const list = document.querySelector('.posts ul');
-  const children = state.posts.map((post) => createPostListItem(post, state, nextInstance));
-  list.replaceChildren(...children);
-};
 
-const createFeedList = (state) => {
-  const list = document.querySelector('.feeds ul');
-  const children = [];
-
-  state.feeds.forEach((feed) => {
+  const children = state.posts.map((post) => {
     const li = document.createElement('li');
-    li.classList.add('list-group-item', 'border-0', 'border-end-0');
+    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
-    const feedTitle = document.createElement('h3');
-    feedTitle.classList.add('h6', 'm-0');
-    feedTitle.textContent = feed.title;
+    const link = document.createElement('a');
+    link.textContent = post.title;
+    link.setAttribute('href', post.link);
+    link.setAttribute('target', '_blank');
+    link.dataset.id = post.id;
+    link.classList.add(state.viewedPostsIds.includes(post.id) ? 'fw-normal link-secondary' : 'fw-bold');
 
-    const feedDescription = document.createElement('p');
-    feedDescription.classList.add('m-0', 'small', 'text-black-50');
-    feedDescription.textContent = feed.description;
+    const button = document.createElement('button');
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.setAttribute('type', 'button');
+    button.dataset.id = post.id;
+    button.dataset.bsToggle = 'modal';
+    button.dataset.bsTarget = '#modal';
+    button.textContent = nextInstance('watchBtn');
 
-    li.append(feedTitle, feedDescription);
-    children.push(li);
+    li.append(link, button);
+    return li;
   });
 
   list.replaceChildren(...children);
 };
 
-const updatePostStyles = (state) => {
-  const links = document.querySelectorAll('.posts a[data-id]');
-  links.forEach((link) => {
-    const postId = +link.dataset.id;
-    if (state.viewedPostsIds.includes(postId)) {
-      link.classList.replace('fw-bold', 'fw-normal');
-      link.classList.add('link-secondary');
-    }
+const renderFeeds = (state) => {
+  const list = document.querySelector('.feeds ul');
+
+  const children = state.feeds.map((feed) => {
+    const li = document.createElement('li');
+    li.classList.add('list-group-item', 'border-0', 'border-end-0');
+
+    const title = document.createElement('h3');
+    title.classList.add('h6', 'm-0');
+    title.textContent = feed.title;
+
+    const description = document.createElement('p');
+    description.classList.add('m-0', 'small', 'text-black-50');
+    description.textContent = feed.description;
+
+    li.append(title, description);
+    return li;
+  });
+
+  list.replaceChildren(...children);
+};
+
+const updatePostStyle = (state) => {
+  document.querySelectorAll('.posts a[data-id]').forEach((link) => {
+    const isViewed = state.viewedPostsIds.includes(+link.dataset.id);
+    link.classList.toggle('fw-bold', !state.viewedPostsIds.includes(+link.dataset.id));
+    link.classList.toggle('fw-normal', isViewed);
+    link.classList.toggle('link-secondary', isViewed);
   });
 };
 
@@ -107,29 +82,29 @@ const updateModalContent = (state) => {
   }
 };
 
-const render = (state, nextInstance) => {
-  if (state.status === 'failed') {
-    displayStatus(state.status, nextInstance(`feedback.${state.error}`));
-  } else if (state.status === 'success') {
-    displayStatus(state.status, nextInstance('feedback.success'));
+const initView = (state, i18nInstance) => onChange(state, (path, value) => {
+  switch (path) {
+    case 'status':
+      displayStatus(value, state.error, i18nInstance);
+      break;
+    case 'error':
+      displayStatus(state.status, value, i18nInstance);
+      break;
+    case 'posts':
+      renderPosts(state, i18nInstance);
+      break;
+    case 'feeds':
+      renderFeeds(state);
+      break;
+    case 'viewedPostsIds':
+      updatePostStyle(state);
+      break;
+    case 'modalPostId':
+      updateModalContent(state);
+      break;
+    default:
+      break;
   }
-
-  createPostList(state, nextInstance);
-  createFeedList(state);
-  updatePostStyles(state);
-  updateModalContent(state);
-};
-
-const initView = (state, i18nInstance) => {
-  const watchedState = onChange(state, (path, value) => {
-    if (path === 'status') {
-      displayStatus(value, i18nInstance(`feedback.${value}`));
-    } else if (path === 'posts' || path === 'viewedPostsIds' || path === 'modalPostId') {
-      render(watchedState, i18nInstance);
-    }
-  });
-
-  return watchedState;
-};
+});
 
 export default initView;

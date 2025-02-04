@@ -1,21 +1,27 @@
 const parseXml = (data) => {
   const parser = new DOMParser();
-  return parser.parseFromString(data, 'text/xml');
+  const doc = parser.parseFromString(data, 'application/xml');
+
+  if (doc.querySelector('parsererror')) {
+    throw new Error('invalid');
+  }
+
+  return doc;
 };
 
 const extractFeed = (parsed) => {
-  const feedTitle = parsed.querySelector('title');
-  const feedDescription = parsed.querySelector('description');
-  const feedLink = parsed.querySelector('link');
+  const feedTitle = parsed.querySelector('title')?.textContent;
+  const feedDescription = parsed.querySelector('description')?.textContent;
+  const feedLink = parsed.querySelector('link')?.textContent;
 
   if (!feedTitle || !feedDescription || !feedLink) {
     throw new Error('notContaining');
   }
 
   return {
-    title: feedTitle.textContent,
-    description: feedDescription.textContent,
-    link: feedLink.textContent,
+    title: feedTitle,
+    description: feedDescription,
+    link: feedLink,
   };
 };
 
@@ -26,18 +32,18 @@ const extractPosts = (parsed) => {
   }
 
   return Array.from(itemList).map((item) => {
-    const link = item.querySelector('link');
-    const title = item.querySelector('title');
-    const description = item.querySelector('description');
+    const link = item.querySelector('link')?.textContent;
+    const title = item.querySelector('title')?.textContent;
+    const description = item.querySelector('description')?.textContent;
 
     if (!link || !title || !description) {
       throw new Error('notContaining');
     }
 
     return {
-      link: link.textContent,
-      title: title.textContent,
-      description: description.textContent,
+      link,
+      title,
+      description,
     };
   });
 };

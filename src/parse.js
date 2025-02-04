@@ -3,7 +3,7 @@ const parseXml = (data) => {
   return parser.parseFromString(data, 'text/xml');
 };
 
-const extractFeed = (parsed, feedIndex) => {
+const extractFeed = (parsed) => {
   const feedTitle = parsed.querySelector('title');
   const feedDescription = parsed.querySelector('description');
   const feedLink = parsed.querySelector('link');
@@ -13,20 +13,19 @@ const extractFeed = (parsed, feedIndex) => {
   }
 
   return {
-    id: feedIndex,
     title: feedTitle.textContent,
     description: feedDescription.textContent,
     link: feedLink.textContent,
   };
 };
 
-const extractPosts = (parsed, postIndex, feedIndex) => {
+const extractPosts = (parsed) => {
   const itemList = parsed.querySelectorAll('item');
   if (itemList.length === 0) {
     throw new Error('notContaining');
   }
 
-  return Array.from(itemList).map((item, index) => {
+  return Array.from(itemList).map((item) => {
     const link = item.querySelector('link');
     const title = item.querySelector('title');
     const description = item.querySelector('description');
@@ -36,8 +35,6 @@ const extractPosts = (parsed, postIndex, feedIndex) => {
     }
 
     return {
-      id: index + postIndex,
-      feedIndex,
       link: link.textContent,
       title: title.textContent,
       description: description.textContent,
@@ -45,10 +42,10 @@ const extractPosts = (parsed, postIndex, feedIndex) => {
   });
 };
 
-const parse = (data, postIndex, feedIndex) => {
+const parse = (data) => {
   const parsed = parseXml(data);
-  const feed = extractFeed(parsed, feedIndex);
-  const posts = extractPosts(parsed, postIndex, feedIndex);
+  const feed = extractFeed(parsed);
+  const posts = extractPosts(parsed);
 
   return { feed, posts };
 };

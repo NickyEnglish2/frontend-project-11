@@ -5,7 +5,13 @@ import initView from './view.js';
 import ru from './ru_locale.js';
 import parse from './parse.js';
 
-const fetchData = (url) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}&disableCache=true`)
+const addProxy = (url) => {
+  const proxyUrl = new URL('https://allorigins.hexlet.app/get');
+  proxyUrl.searchParams.set('url', url);
+  proxyUrl.searchParams.set('disableCache', 'true');
+  return proxyUrl.toString();
+};
+const fetchData = (url) => axios.get(addProxy(url))
   .then(({ data }) => data.contents)
   .catch((err) => {
     if (err.response) {
@@ -85,7 +91,9 @@ export default () => {
       },
     })
     .then((t) => {
-      const schema = yup.string().url();
+      const schema = (feeds) => yup.string()
+        .url('invalid')
+        .notOneOf(feeds.map((feed) => feed.url), 'alreadyExists');
       const watchedState = initView(state, t);
 
       setTimeout(() => updatePosts(watchedState), 5000);
@@ -97,28 +105,31 @@ export default () => {
         watchedState.error = null;
         const { value } = formElement.elements['url-input'];
 
-        if (watchedState.feeds.some((feed) => feed.url === value)) {
-          watchedState.status = 'failed';
-          watchedState.error = 'alreadyExists';
-          return;
-        }
-
-        schema.validate(value)
+        schema(watchedState.feeds).validate(value)
           .then(() => fetchData(value))
           .then((data) => {
             const feedIndex = watchedState.feeds.length;
             const postIndex = watchedState.posts.length;
-            const parsedData = parse(data, postIndex, feedIndex);
 
-            watchedState.status = 'success';
-            watchedState.error = null;
-            watchedState.feeds = [...watchedState.feeds, {
+            const parsedData = parse(data);
+
+            const newFeed = {
               id: feedIndex,
               url: value,
               title: parsedData.feed.title,
               description: parsedData.feed.description,
-            }];
-            watchedState.posts = [...parsedData.posts, ...watchedState.posts];
+            };
+
+            const newPosts = parsedData.posts.map((post, index) => ({
+              ...post,
+              id: postIndex + index,
+              feedIndex,
+            }));
+
+            watchedState.status = 'success';
+            watchedState.error = null;
+            watchedState.feeds = [...watchedState.feeds, newFeed];
+            watchedState.posts = [...newPosts, ...watchedState.posts];
           })
           .catch((err) => {
             watchedState.status = 'failed';

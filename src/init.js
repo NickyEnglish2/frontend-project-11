@@ -6,35 +6,24 @@ import ru from './ru_locale.js';
 import parse from './parse.js';
 
 const addProxy = (url) => {
+  const encodedUrl = encodeURI(url.trim());
   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
-  proxyUrl.searchParams.set('url', url);
+  proxyUrl.searchParams.set('url', encodedUrl);
   proxyUrl.searchParams.set('disableCache', 'true');
-  return proxyUrl.toString();
+  return proxyUrl.toString().trim();
 };
-const fetchData = (url) => axios.get(addProxy(url))
-  .then(({ data }) => data.contents)
-  .catch((err) => {
-    if (err.response) {
-      throw new Error('notContaining');
-    } else if (err.request) {
-      throw new Error('networkErr');
-    } else {
-      throw new Error('invalid');
-    }
-  });
 
 const updatePosts = (watchedState) => {
   const parsed = watchedState.feeds.map((feed) => {
     const currentPosts = watchedState.posts.filter(({ feedIndex }) => feed.id === feedIndex);
     const postsTitles = currentPosts.map(({ title }) => title);
-    const { id: feedIndex } = feed;
 
-    return fetchData(feed.url)
-      .then((data) => {
-        const postIndex = watchedState.posts.length;
-        const parsedData = parse(data, postIndex, feedIndex);
+    return axios.get(addProxy(feed.url))
+      .then(({ data }) => {
+        const parsedData = parse(data.contents);
         return parsedData.posts.filter(({ title }) => !postsTitles.includes(title));
-      });
+      })
+      .catch(() => []);
   });
 
   Promise.all(parsed)
@@ -94,6 +83,7 @@ export default () => {
       const schema = (feeds) => yup.string()
         .url('invalid')
         .notOneOf(feeds.map((feed) => feed.url), 'alreadyExists');
+
       const watchedState = initView(state, t);
 
       setTimeout(() => updatePosts(watchedState), 5000);
@@ -105,13 +95,19 @@ export default () => {
         watchedState.error = null;
         const { value } = formElement.elements['url-input'];
 
+        if (value.includes(' ')) {
+          watchedState.status = 'failed';
+          watchedState.error = 'URL содержит пробелы';
+          return;
+        }
+
         schema(watchedState.feeds).validate(value)
-          .then(() => fetchData(value))
-          .then((data) => {
+          .then(() => axios.get(addProxy(value)))
+          .then(({ data }) => {
             const feedIndex = watchedState.feeds.length;
             const postIndex = watchedState.posts.length;
 
-            const parsedData = parse(data);
+            const parsedData = parse(data.contents);
 
             const newFeed = {
               id: feedIndex,

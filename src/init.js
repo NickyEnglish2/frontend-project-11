@@ -97,7 +97,7 @@ export default () => {
 
         if (value.includes(' ')) {
           watchedState.status = 'failed';
-          watchedState.error = 'URL содержит пробелы';
+          watchedState.error = 'invalid';
           return;
         }
 

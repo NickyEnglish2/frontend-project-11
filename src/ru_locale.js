@@ -8,6 +8,7 @@ export default {
       alreadyExists: 'RSS уже существует',
       networkErr: 'Ошибка сети',
       notContaining: 'Ресурс не содержит валидный RSS',
+      unknownErr: 'Неизвестная ошибка',
     },
     watchBtn: 'Просмотр.',
   },

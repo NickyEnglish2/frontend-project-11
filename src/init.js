@@ -17,11 +17,17 @@ const updatePosts = (watchedState) => {
   const parsed = watchedState.feeds.map((feed) => {
     const currentPosts = watchedState.posts.filter(({ feedIndex }) => feed.id === feedIndex);
     const postsTitles = currentPosts.map(({ title }) => title);
+    const { id: feedIndex } = feed;
 
     return axios.get(addProxy(feed.url))
       .then(({ data }) => {
         const parsedData = parse(data.contents);
-        return parsedData.posts.filter(({ title }) => !postsTitles.includes(title));
+        return parsedData.posts
+          .filter(({ title }) => !postsTitles.includes(title))
+          .map((post) => ({
+            ...post,
+            feedIndex,
+          }));
       })
       .catch(() => []);
   });

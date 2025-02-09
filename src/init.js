@@ -1,6 +1,7 @@
 import axios from 'axios';
 import i18next from 'i18next';
 import * as yup from 'yup';
+import { uniqueId } from 'lodash';
 import initView from './view.js';
 import ru from './ru_locale.js';
 import parse from './parse.js';
@@ -10,7 +11,7 @@ const addProxy = (url) => {
   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
   proxyUrl.searchParams.set('url', encodedUrl);
   proxyUrl.searchParams.set('disableCache', 'true');
-  return proxyUrl.toString().trim();
+  return proxyUrl.toString();
 };
 
 const updatePosts = (watchedState) => {
@@ -27,6 +28,7 @@ const updatePosts = (watchedState) => {
           .map((post) => ({
             ...post,
             feedIndex,
+            id: uniqueId(),
           }));
       })
       .catch(() => []);
@@ -35,17 +37,14 @@ const updatePosts = (watchedState) => {
   Promise.all(parsed)
     .then((arr) => [].concat(...arr))
     .then((newPosts) => {
-      const updatedPosts = newPosts.map((post, index) => ({
-        ...post,
-        id: index + watchedState.posts.length,
-      }));
+      if (newPosts.length > 0) {
+        const newState = {
+          ...watchedState,
+          posts: [...newPosts, ...watchedState.posts],
+        };
 
-      const newState = {
-        ...watchedState,
-        posts: [...updatedPosts, ...watchedState.posts],
-      };
-
-      Object.assign(watchedState, newState);
+        Object.assign(watchedState, newState);
+      }
     })
     .catch((err) => {
       const newState = {
@@ -56,8 +55,6 @@ const updatePosts = (watchedState) => {
 
       Object.assign(watchedState, newState);
     });
-
-  setTimeout(() => updatePosts(watchedState), 5000);
 };
 
 export default () => {
@@ -111,20 +108,19 @@ export default () => {
           .then(() => axios.get(addProxy(value)))
           .then(({ data }) => {
             const feedIndex = watchedState.feeds.length;
-            const postIndex = watchedState.posts.length;
 
             const parsedData = parse(data.contents);
 
             const newFeed = {
-              id: feedIndex,
+              id: uniqueId(),
               url: value,
               title: parsedData.feed.title,
               description: parsedData.feed.description,
             };
 
-            const newPosts = parsedData.posts.map((post, index) => ({
+            const newPosts = parsedData.posts.map((post) => ({
               ...post,
-              id: postIndex + index,
+              id: uniqueId(),
               feedIndex,
             }));
 
@@ -140,7 +136,7 @@ export default () => {
       });
 
       const handlePostClick = (e) => {
-        const postId = +e.target.dataset.id;
+        const postId = e.target.dataset.id;
 
         if (!postId) return;
 

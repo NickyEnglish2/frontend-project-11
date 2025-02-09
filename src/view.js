@@ -64,8 +64,8 @@ const renderFeeds = (state) => {
 
 const updatePostStyle = (state) => {
   document.querySelectorAll('.posts a[data-id]').forEach((link) => {
-    const isViewed = state.viewedPostsIds.includes(+link.dataset.id);
-    link.classList.toggle('fw-bold', !state.viewedPostsIds.includes(+link.dataset.id));
+    const isViewed = state.viewedPostsIds.includes(link.dataset.id);
+    link.classList.toggle('fw-bold', !state.viewedPostsIds.includes(link.dataset.id));
     link.classList.toggle('fw-normal', isViewed);
     link.classList.toggle('link-secondary', isViewed);
   });

@@ -15,24 +15,25 @@ const addProxy = (url) => {
 };
 
 const updatePosts = (watchedState) => {
-  const parsed = watchedState.feeds.map((feed) => {
-    const currentPosts = watchedState.posts.filter(({ feedIndex }) => feed.id === feedIndex);
-    const postsTitles = currentPosts.map(({ title }) => title);
-    const { id: feedIndex } = feed;
+  const parsed = watchedState.feeds.map((feed) => axios.get(addProxy(feed.url))
+    .then(({ data }) => {
+      const { id: feedIndex } = feed;
+      const currentPosts = watchedState.posts.filter((post) => {
+        const { feedIndex: postFeedIndex } = post;
+        return postFeedIndex === feedIndex;
+      });
+      const postsTitles = currentPosts.map(({ title }) => title);
 
-    return axios.get(addProxy(feed.url))
-      .then(({ data }) => {
-        const parsedData = parse(data.contents);
-        return parsedData.posts
-          .filter(({ title }) => !postsTitles.includes(title))
-          .map((post) => ({
-            ...post,
-            feedIndex,
-            id: uniqueId(),
-          }));
-      })
-      .catch(() => []);
-  });
+      const parsedData = parse(data.contents);
+      return parsedData.posts
+        .filter(({ title }) => !postsTitles.includes(title))
+        .map((post) => ({
+          ...post,
+          feedIndex,
+          id: uniqueId(),
+        }));
+    })
+    .catch(() => []));
 
   Promise.all(parsed)
     .then((arr) => [].concat(...arr))

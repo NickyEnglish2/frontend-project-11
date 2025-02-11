@@ -11,7 +11,7 @@ const addProxy = (url) => {
   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
   proxyUrl.searchParams.set('url', encodedUrl);
   proxyUrl.searchParams.set('disableCache', 'true');
-  return proxyUrl.toString();
+  return proxyUrl.href;
 };
 
 const updatePosts = (watchedState) => {

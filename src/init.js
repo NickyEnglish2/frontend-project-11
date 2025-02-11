@@ -131,8 +131,19 @@ export default () => {
             watchedState.posts = [...newPosts, ...watchedState.posts];
           })
           .catch((err) => {
-            watchedState.status = 'failed';
-            watchedState.error = err.message;
+            if (err.isAxiosError) {
+              watchedState.status = 'failed';
+              watchedState.error = 'networkErr';
+              console.error('Network error:', err.message);
+            } else if (err.isParsingError) {
+              watchedState.status = 'failed';
+              watchedState.error = 'notContaining';
+              console.error('Parsing error:', err.message);
+            } else {
+              watchedState.status = 'failed';
+              watchedState.error = err.message;
+              console.error('Error:', err.message);
+            }
           });
       });
 

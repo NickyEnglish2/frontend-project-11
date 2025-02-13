@@ -11,7 +11,7 @@ const addProxy = (url) => {
   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
   proxyUrl.searchParams.set('url', encodedUrl);
   proxyUrl.searchParams.set('disableCache', 'true');
-  return proxyUrl.href;
+  return proxyUrl.href.toString();
 };
 
 const updatePosts = (watchedState) => {
@@ -141,7 +141,7 @@ export default () => {
               console.error('Parsing error:', err.message);
             } else {
               watchedState.status = 'failed';
-              watchedState.error = err.message;
+              watchedState.error = 'unknownErr';
               console.error('Error:', err.message);
             }
           });

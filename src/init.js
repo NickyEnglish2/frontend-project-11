@@ -11,7 +11,8 @@ const addProxy = (url) => {
   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
   proxyUrl.searchParams.set('url', encodedUrl);
   proxyUrl.searchParams.set('disableCache', 'true');
-  return proxyUrl.href.toString();
+  console.log(proxyUrl.href.toString());
+  return proxyUrl.toString();
 };
 
 const updatePosts = (watchedState) => {
@@ -97,16 +98,18 @@ export default () => {
         e.preventDefault();
         watchedState.status = 'loading';
         watchedState.error = null;
-        const { value } = formElement.elements['url-input'];
 
-        if (value.includes(' ')) {
+        const formData = new FormData(e.target);
+        const url = formData.get('url-input');
+
+        if (!url || url.includes(' ')) {
           watchedState.status = 'failed';
           watchedState.error = 'invalid';
           return;
         }
 
-        schema(watchedState.feeds).validate(value)
-          .then(() => axios.get(addProxy(value)))
+        schema(watchedState.feeds).validate(url)
+          .then(() => axios.get(addProxy(url)))
           .then(({ data }) => {
             const feedIndex = watchedState.feeds.length;
 
@@ -114,7 +117,7 @@ export default () => {
 
             const newFeed = {
               id: uniqueId(),
-              url: value,
+              url,
               title: parsedData.feed.title,
               description: parsedData.feed.description,
             };

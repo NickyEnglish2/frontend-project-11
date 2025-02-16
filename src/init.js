@@ -7,56 +7,40 @@ import ru from './ru_locale.js';
 import parse from './parse.js';
 
 const addProxy = (url) => {
-  const encodedUrl = encodeURI(url.trim());
   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
-  proxyUrl.searchParams.set('url', encodedUrl);
+  proxyUrl.searchParams.set('url', url.trim());
   proxyUrl.searchParams.set('disableCache', 'true');
-  console.log(proxyUrl.href.toString());
   return proxyUrl.toString();
 };
 
 const updatePosts = (watchedState) => {
-  const parsed = watchedState.feeds.map((feed) => axios.get(addProxy(feed.url))
-    .then(({ data }) => {
-      const { id: feedIndex } = feed;
-      const currentPosts = watchedState.posts.filter((post) => {
-        const { feedIndex: postFeedIndex } = post;
-        return postFeedIndex === feedIndex;
-      });
-      const postsTitles = currentPosts.map(({ title }) => title);
+  watchedState.feeds.forEach((feed) => {
+    axios.get(addProxy(feed.url))
+      .then(({ data }) => {
+        const { id: feedIndex } = feed;
+        const currentPosts = watchedState.posts.filter((post) => post.feedIndex === feedIndex);
+        const postsTitles = currentPosts.map(({ title }) => title);
 
-      const parsedData = parse(data.contents);
-      return parsedData.posts
-        .filter(({ title }) => !postsTitles.includes(title))
-        .map((post) => ({
-          ...post,
-          feedIndex,
-          id: uniqueId(),
-        }));
-    })
-    .catch(() => []));
+        const parsedData = parse(data.contents);
+        const newPosts = parsedData.posts
+          .filter(({ title }) => !postsTitles.includes(title))
+          .map((post) => ({
+            ...post,
+            feedIndex,
+            id: uniqueId(),
+          }));
 
-  Promise.all(parsed)
-    .then((arr) => [].concat(...arr))
-    .then((newPosts) => {
-      if (newPosts.length > 0) {
-        const newState = {
-          ...watchedState,
-          posts: [...newPosts, ...watchedState.posts],
-        };
+        if (newPosts.length > 0) {
+          const newState = {
+            ...watchedState,
+            posts: [...newPosts, ...watchedState.posts],
+          };
 
-        Object.assign(watchedState, newState);
-      }
-    })
-    .catch((err) => {
-      const newState = {
-        ...watchedState,
-        status: 'failed',
-        error: err.message,
-      };
-
-      Object.assign(watchedState, newState);
-    });
+          Object.assign(watchedState, newState);
+        }
+      })
+      .catch(() => []);
+  });
 };
 
 export default () => {

@@ -86,12 +86,6 @@ export default () => {
         const formData = new FormData(e.target);
         const url = formData.get('url-input');
 
-        if (!url || url.includes(' ')) {
-          watchedState.status = 'failed';
-          watchedState.error = 'invalid';
-          return;
-        }
-
         schema(watchedState.feeds).validate(url)
           .then(() => axios.get(addProxy(url)))
           .then(({ data }) => {

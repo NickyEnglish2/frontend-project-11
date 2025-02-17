@@ -43,6 +43,11 @@ const updatePosts = (watchedState) => {
   });
 };
 
+const validateUrl = (url, feeds) => yup.string()
+  .url('invalid')
+  .notOneOf(feeds.map((feed) => feed.url), 'alreadyExists')
+  .validate(url);
+
 export default () => {
   const state = {
     feeds: [],
@@ -69,10 +74,6 @@ export default () => {
       },
     })
     .then((t) => {
-      const schema = (feeds) => yup.string()
-        .url('invalid')
-        .notOneOf(feeds.map((feed) => feed.url), 'alreadyExists');
-
       const watchedState = initView(state, t);
 
       setTimeout(() => updatePosts(watchedState), 5000);
@@ -86,7 +87,7 @@ export default () => {
         const formData = new FormData(e.target);
         const url = formData.get('url-input');
 
-        schema(watchedState.feeds).validate(url)
+        validateUrl(url, watchedState.feeds)
           .then(() => axios.get(addProxy(url)))
           .then(({ data }) => {
             const feedIndex = watchedState.feeds.length;

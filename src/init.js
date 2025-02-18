@@ -31,12 +31,7 @@ const updatePosts = (watchedState) => {
           }));
 
         if (newPosts.length > 0) {
-          const newState = {
-            ...watchedState,
-            posts: [...newPosts, ...watchedState.posts],
-          };
-
-          Object.assign(watchedState, newState);
+          watchedState.posts = [...newPosts, ...watchedState.posts];
         }
       })
       .catch(() => []);
@@ -62,31 +57,23 @@ const loadRss = (url, watchedState) => axios.get(addProxy(url))
       feedIndex,
     }));
 
-    Object.assign(watchedState, {
-      status: 'success',
-      error: null,
-      feeds: [...watchedState.feeds, newFeed],
-      posts: [...newPosts, ...watchedState.posts],
-    });
+    watchedState.status = 'success';
+    watchedState.error = null;
+    watchedState.feeds = [...watchedState.feeds, newFeed];
+    watchedState.posts = [...newPosts, ...watchedState.posts];
   })
   .catch((err) => {
     if (err.isAxiosError) {
-      Object.assign(watchedState, {
-        status: 'failed',
-        error: 'networkErr',
-      });
+      watchedState.status = 'failed';
+      watchedState.error = 'networkErr';
       console.error('Network error:', err.message);
     } else if (err.isParsingError) {
-      Object.assign(watchedState, {
-        status: 'failed',
-        error: 'notContaining',
-      });
+      watchedState.status = 'failed';
+      watchedState.error = 'notContaining';
       console.error('Parsing error:', err.message);
     } else {
-      Object.assign(watchedState, {
-        status: 'failed',
-        error: 'unknownErr',
-      });
+      watchedState.status = 'failed';
+      watchedState.error = 'unknownErr';
       console.error('Unknown error:', err.message);
     }
   });

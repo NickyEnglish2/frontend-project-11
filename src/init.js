@@ -17,8 +17,8 @@ const updatePosts = (watchedState) => {
   watchedState.feeds.forEach((feed) => {
     axios.get(addProxy(feed.url))
       .then(({ data }) => {
-        const { id: feedIndex } = feed;
-        const currentPosts = watchedState.posts.filter((post) => post.feedIndex === feedIndex);
+        const { id: feedId } = feed;
+        const currentPosts = watchedState.posts.filter((post) => post.feedId === feedId);
         const postsTitles = currentPosts.map(({ title }) => title);
 
         const parsedData = parse(data.contents);
@@ -26,7 +26,7 @@ const updatePosts = (watchedState) => {
           .filter(({ title }) => !postsTitles.includes(title))
           .map((post) => ({
             ...post,
-            feedIndex,
+            feedId,
             id: uniqueId(),
           }));
 
@@ -40,8 +40,6 @@ const updatePosts = (watchedState) => {
 
 const loadRss = (url, watchedState) => axios.get(addProxy(url))
   .then(({ data }) => {
-    const feedIndex = watchedState.feeds.length;
-
     const parsedData = parse(data.contents);
 
     const newFeed = {
@@ -54,7 +52,7 @@ const loadRss = (url, watchedState) => axios.get(addProxy(url))
     const newPosts = parsedData.posts.map((post) => ({
       ...post,
       id: uniqueId(),
-      feedIndex,
+      feedId: newFeed.id,
     }));
 
     watchedState.status = 'success';

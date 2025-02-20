@@ -124,7 +124,7 @@ export default () => {
           .then(() => loadRss(url, watchedState))
           .catch((err) => {
             watchedState.status = 'failed';
-            watchedState.error = err.message === 'invalid' ? 'invalid' : 'alreadyExists';
+            watchedState.error = err.message;
           });
       });
 

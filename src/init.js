@@ -77,6 +77,7 @@ const loadRss = (url, watchedState) => axios.get(addProxy(url))
   });
 
 const validateUrl = (url, feeds) => yup.string()
+  .required('required')
   .url('invalid')
   .notOneOf(feeds.map((feed) => feed.url), 'alreadyExists')
   .validate(url);
@@ -94,6 +95,7 @@ export default () => {
   yup.setLocale({
     string: {
       url: () => 'invalid',
+      required: () => 'required',
     },
   });
 

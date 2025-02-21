@@ -36,6 +36,8 @@ const updatePosts = (watchedState) => {
       })
       .catch(() => []);
   });
+
+  setTimeout(() => updatePosts(watchedState), 5000);
 };
 
 const loadRss = (url, watchedState) => axios.get(addProxy(url))
@@ -96,7 +98,7 @@ export default () => {
     .then((t) => {
       const watchedState = initView(state, t);
 
-      setTimeout(() => updatePosts(watchedState), 5000);
+      updatePosts(watchedState);
 
       const formElement = document.querySelector('form');
       formElement?.addEventListener('submit', (e) => {

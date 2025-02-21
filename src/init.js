@@ -61,6 +61,21 @@ const loadRss = (url, watchedState) => axios.get(addProxy(url))
     watchedState.error = null;
     watchedState.feeds = [...watchedState.feeds, newFeed];
     watchedState.posts = [...newPosts, ...watchedState.posts];
+  })
+  .catch((err) => {
+    if (err.isAxiosError) {
+      watchedState.status = 'failed';
+      watchedState.error = 'networkErr';
+      console.error('Network error:', err.message);
+    } else if (err.isParsingError) {
+      watchedState.status = 'failed';
+      watchedState.error = 'notContaining';
+      console.error('Parsing error:', err.message);
+    } else {
+      watchedState.status = 'failed';
+      watchedState.error = 'unknownErr';
+      console.error('Unknown error:', err.message);
+    }
   });
 
 const validateUrl = (url, feeds) => yup.string()
@@ -110,22 +125,7 @@ export default () => {
         const url = formData.get('url-input');
 
         validateUrl(url, watchedState.feeds)
-          .then(() => loadRss(url, watchedState)
-            .catch((err) => {
-              if (err.isAxiosError) {
-                watchedState.status = 'failed';
-                watchedState.error = 'networkErr';
-                console.error('Network error:', err.message);
-              } else if (err.isParsingError) {
-                watchedState.status = 'failed';
-                watchedState.error = 'notContaining';
-                console.error('Parsing error:', err.message);
-              } else {
-                watchedState.status = 'failed';
-                watchedState.error = 'unknownErr';
-                console.error('Unknown error:', err.message);
-              }
-            }))
+          .then(() => loadRss(url, watchedState))
           .catch((err) => {
             watchedState.status = 'failed';
             watchedState.error = err.message;

@@ -139,10 +139,8 @@ export default () => {
           ? watchedState.viewedPostsIds
           : [...watchedState.viewedPostsIds, postId];
 
-        Object.assign(watchedState, {
-          viewedPostsIds: updatedViewedPostsIds,
-          modalPostId: postId,
-        });
+        watchedState.viewedPostsIds = updatedViewedPostsIds;
+        watchedState.modalPostId = postId;
       };
 
       const posts = document.querySelector('.posts');

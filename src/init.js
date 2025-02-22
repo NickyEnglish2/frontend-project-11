@@ -14,7 +14,7 @@ const addProxy = (url) => {
 };
 
 const updatePosts = (watchedState) => {
-  watchedState.feeds.forEach((feed) => {
+  const requests = watchedState.feeds.forEach((feed) => {
     axios.get(addProxy(feed.url))
       .then(({ data }) => {
         const { id: feedId } = feed;
@@ -37,7 +37,9 @@ const updatePosts = (watchedState) => {
       .catch(() => []);
   });
 
-  setTimeout(() => updatePosts(watchedState), 5000);
+  Promise.all(requests).finally(() => {
+    setTimeout(() => updatePosts(watchedState), 5000);
+  });
 };
 
 const loadRss = (url, watchedState) => axios.get(addProxy(url))
@@ -125,7 +127,7 @@ export default () => {
         const url = formData.get('url-input');
 
         validateUrl(url, watchedState.feeds)
-          .then(() => loadRss(url, watchedState))
+          .then(() => { loadRss(url, watchedState); })
           .catch((err) => {
             watchedState.status = 'failed';
             watchedState.error = err.message;

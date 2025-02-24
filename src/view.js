@@ -82,29 +82,40 @@ const updateModalContent = (state) => {
   }
 };
 
-const initView = (state, i18nInstance) => onChange(state, (path, value) => {
-  switch (path) {
-    case 'status':
-      displayStatus(value, state.error, i18nInstance);
-      break;
-    case 'error':
-      displayStatus(state.status, value, i18nInstance);
-      break;
-    case 'posts':
-      renderPosts(state, i18nInstance);
-      break;
-    case 'feeds':
-      renderFeeds(state);
-      break;
-    case 'viewedPostsIds':
-      updatePostStyle(state);
-      break;
-    case 'modalPostId':
-      updateModalContent(state);
-      break;
-    default:
-      break;
-  }
-});
+const initView = (state, i18nInstance) => {
+  const submitBtn = document.querySelector('button[type="submit"]');
+
+  return onChange(state, (path, value) => {
+    switch (path) {
+      case 'status':
+        displayStatus(value, state.error, i18nInstance);
+
+        if (value === 'loading') {
+          submitBtn.setAttribute('disabled', 'true');
+        } else {
+          submitBtn.removeAttribute('disabled');
+        }
+
+        break;
+      case 'error':
+        displayStatus(state.status, value, i18nInstance);
+        break;
+      case 'posts':
+        renderPosts(state, i18nInstance);
+        break;
+      case 'feeds':
+        renderFeeds(state);
+        break;
+      case 'viewedPostsIds':
+        updatePostStyle(state);
+        break;
+      case 'modalPostId':
+        updateModalContent(state);
+        break;
+      default:
+        break;
+    }
+  });
+};
 
 export default initView;

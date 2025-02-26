@@ -14,28 +14,26 @@ const addProxy = (url) => {
 };
 
 const updatePosts = (watchedState) => {
-  const requests = watchedState.feeds.forEach((feed) => {
-    axios.get(addProxy(feed.url))
-      .then(({ data }) => {
-        const { id: feedId } = feed;
-        const currentPosts = watchedState.posts.filter((post) => post.feedId === feedId);
-        const postsTitles = currentPosts.map(({ title }) => title);
+  const requests = watchedState.feeds.map((feed) => axios.get(addProxy(feed.url))
+    .then(({ data }) => {
+      const { id: feedId } = feed;
+      const currentPosts = watchedState.posts.filter((post) => post.feedId === feedId);
+      const postsTitles = currentPosts.map(({ title }) => title);
 
-        const parsedData = parse(data.contents);
-        const newPosts = parsedData.posts
-          .filter(({ title }) => !postsTitles.includes(title))
-          .map((post) => ({
-            ...post,
-            feedId,
-            id: uniqueId(),
-          }));
+      const parsedData = parse(data.contents);
+      const newPosts = parsedData.posts
+        .filter(({ title }) => !postsTitles.includes(title))
+        .map((post) => ({
+          ...post,
+          feedId,
+          id: uniqueId(),
+        }));
 
-        if (newPosts.length > 0) {
-          watchedState.posts = [...newPosts, ...watchedState.posts];
-        }
-      })
-      .catch(() => []);
-  });
+      if (newPosts.length > 0) {
+        watchedState.posts = [...newPosts, ...watchedState.posts];
+      }
+    })
+    .catch(() => []));
 
   Promise.all(requests).finally(() => {
     setTimeout(() => updatePosts(watchedState), 5000);

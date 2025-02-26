@@ -1,14 +1,23 @@
 import onChange from 'on-change';
 
-const displayStatus = (status, error, i18nInstance) => {
+const displayStatus = (status, error, i18nInstance, submitBtn) => {
   const input = document.querySelector('#url-input');
   const feedback = document.querySelector('.feedback');
-  const addClass = status === 'success' ? 'text-success' : 'text-danger';
-  const removeClass = status === 'success' ? 'text-danger' : 'text-success';
 
-  input.classList.toggle('is-invalid', status !== 'success');
-  feedback.classList.replace(removeClass, addClass);
-  feedback.textContent = i18nInstance(`feedback.${error || status}`);
+  if (status === 'loading') {
+    submitBtn.setAttribute('disabled', 'true');
+  } else {
+    submitBtn.removeAttribute('disabled');
+  }
+
+  if (status === 'failed' || status === 'success') {
+    const addClass = status === 'success' ? 'text-success' : 'text-danger';
+    const removeClass = status === 'success' ? 'text-danger' : 'text-success';
+
+    input.classList.toggle('is-invalid', status !== 'success');
+    feedback.classList.replace(removeClass, addClass);
+    feedback.textContent = i18nInstance(`feedback.${error || status}`);
+  }
 };
 
 const renderPosts = (state, nextInstance) => {
@@ -88,17 +97,7 @@ const initView = (state, i18nInstance) => {
   return onChange(state, (path, value) => {
     switch (path) {
       case 'status':
-        displayStatus(value, state.error, i18nInstance);
-
-        if (value === 'loading') {
-          submitBtn.setAttribute('disabled', 'true');
-        } else {
-          submitBtn.removeAttribute('disabled');
-        }
-
-        break;
-      case 'error':
-        displayStatus(state.status, value, i18nInstance);
+        displayStatus(value, state.error, i18nInstance, submitBtn);
         break;
       case 'posts':
         renderPosts(state, i18nInstance);

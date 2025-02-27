@@ -1,8 +1,9 @@
 import onChange from 'on-change';
 
-const displayStatus = (status, error, i18nInstance, submitBtn) => {
+const displayStatus = (status, error, i18nInstance) => {
   const input = document.querySelector('#url-input');
   const feedback = document.querySelector('.feedback');
+  const submitBtn = document.querySelector('button[type="submit"]');
 
   if (status === 'loading') {
     submitBtn.setAttribute('disabled', 'true');
@@ -10,14 +11,12 @@ const displayStatus = (status, error, i18nInstance, submitBtn) => {
     submitBtn.removeAttribute('disabled');
   }
 
-  if (status === 'failed' || status === 'success') {
-    const addClass = status === 'success' ? 'text-success' : 'text-danger';
-    const removeClass = status === 'success' ? 'text-danger' : 'text-success';
+  const addClass = status === 'success' ? 'text-success' : 'text-danger';
+  const removeClass = status === 'success' ? 'text-danger' : 'text-success';
 
-    input.classList.toggle('is-invalid', status !== 'success');
-    feedback.classList.replace(removeClass, addClass);
-    feedback.textContent = i18nInstance(`feedback.${error || status}`);
-  }
+  input.classList.toggle('is-invalid', status !== 'success');
+  feedback.classList.replace(removeClass, addClass);
+  feedback.textContent = i18nInstance(`feedback.${error || status}`);
 };
 
 const renderPosts = (state, nextInstance) => {
@@ -91,30 +90,29 @@ const updateModalContent = (state) => {
   }
 };
 
-const initView = (state, i18nInstance) => {
-  const submitBtn = document.querySelector('button[type="submit"]');
-
-  return onChange(state, (path, value) => {
-    switch (path) {
-      case 'status':
-        displayStatus(value, state.error, i18nInstance, submitBtn);
-        break;
-      case 'posts':
-        renderPosts(state, i18nInstance);
-        break;
-      case 'feeds':
-        renderFeeds(state);
-        break;
-      case 'viewedPostsIds':
-        updatePostStyle(state);
-        break;
-      case 'modalPostId':
-        updateModalContent(state);
-        break;
-      default:
-        break;
-    }
-  });
-};
+const initView = (state, i18nInstance) => onChange(state, (path, value) => {
+  switch (path) {
+    case 'status':
+      displayStatus(value, state.error, i18nInstance);
+      break;
+    case 'error':
+      displayStatus(state.starus, value, i18nInstance);
+      break;
+    case 'posts':
+      renderPosts(state, i18nInstance);
+      break;
+    case 'feeds':
+      renderFeeds(state);
+      break;
+    case 'viewedPostsIds':
+      updatePostStyle(state);
+      break;
+    case 'modalPostId':
+      updateModalContent(state);
+      break;
+    default:
+      break;
+  }
+});
 
 export default initView;

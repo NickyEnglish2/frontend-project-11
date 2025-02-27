@@ -57,23 +57,23 @@ const loadRss = (url, watchedState) => axios.get(addProxy(url))
       feedId: newFeed.id,
     }));
 
-    watchedState.status = 'success';
     watchedState.error = null;
+    watchedState.status = 'success';
     watchedState.feeds = [...watchedState.feeds, newFeed];
     watchedState.posts = [...newPosts, ...watchedState.posts];
   })
   .catch((err) => {
     if (err.isAxiosError) {
-      watchedState.status = 'failed';
       watchedState.error = 'networkErr';
+      watchedState.status = 'failed';
       console.error('Network error:', err.message);
     } else if (err.isParsingError) {
-      watchedState.status = 'failed';
       watchedState.error = 'notContaining';
+      watchedState.status = 'failed';
       console.error('Parsing error:', err.message);
     } else {
-      watchedState.status = 'failed';
       watchedState.error = 'unknownErr';
+      watchedState.status = 'failed';
       console.error('Unknown error:', err.message);
     }
   });
@@ -118,8 +118,8 @@ export default () => {
       const formElement = document.querySelector('form');
       formElement?.addEventListener('submit', (e) => {
         e.preventDefault();
-        watchedState.status = 'loading';
         watchedState.error = null;
+        watchedState.status = 'loading';
 
         const formData = new FormData(e.target);
         const url = formData.get('url-input');
@@ -127,8 +127,8 @@ export default () => {
         validateUrl(url, watchedState.feeds)
           .then(() => { loadRss(url, watchedState); })
           .catch((err) => {
-            watchedState.status = 'failed';
             watchedState.error = err.message;
+            watchedState.status = 'failed';
           });
       });
 

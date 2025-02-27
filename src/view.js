@@ -5,18 +5,35 @@ const displayStatus = (status, error, i18nInstance) => {
   const feedback = document.querySelector('.feedback');
   const submitBtn = document.querySelector('button[type="submit"]');
 
-  if (status === 'loading') {
-    submitBtn.setAttribute('disabled', 'true');
-  } else {
-    submitBtn.removeAttribute('disabled');
+  switch (status) {
+    case 'loading':
+      submitBtn.setAttribute('disabled', 'true');
+      feedback.textContent = i18nInstance('feedback.loading');
+      feedback.classList.remove('text-success', 'text-danger');
+      input.classList.remove('is-invalid');
+      break;
+    case 'failed':
+      submitBtn.removeAttribute('disabled');
+      feedback.textContent = i18nInstance(`feedback.${error}`);
+      feedback.classList.remove('text-success');
+      feedback.classList.add('text-danger');
+      input.classList.add('is-invalid');
+      break;
+    case 'success':
+      submitBtn.removeAttribute('disabled');
+      feedback.textContent = i18nInstance('feedback.success');
+      feedback.classList.remove('text-danger');
+      feedback.classList.add('text-success');
+      input.classList.remove('is-invalid');
+      break;
+    case 'idle':
+    default:
+      submitBtn.removeAttribute('disabled');
+      feedback.textContent = '';
+      feedback.classList.remove('text-success', 'text-danger');
+      input.classList.remove('is-invalid');
+      break;
   }
-
-  const addClass = status === 'success' ? 'text-success' : 'text-danger';
-  const removeClass = status === 'success' ? 'text-danger' : 'text-success';
-
-  input.classList.toggle('is-invalid', status !== 'success');
-  feedback.classList.replace(removeClass, addClass);
-  feedback.textContent = i18nInstance(`feedback.${error || status}`);
 };
 
 const renderPosts = (state, nextInstance) => {
@@ -94,9 +111,6 @@ const initView = (state, i18nInstance) => onChange(state, (path, value) => {
   switch (path) {
     case 'status':
       displayStatus(value, state.error, i18nInstance);
-      break;
-    case 'error':
-      displayStatus(state.starus, value, i18nInstance);
       break;
     case 'posts':
       renderPosts(state, i18nInstance);

@@ -3,7 +3,7 @@ import i18next from 'i18next';
 import * as yup from 'yup';
 import { uniqueId } from 'lodash';
 import initView from './view.js';
-import ru from './ru_locale.js';
+import resources from './locales/index.js';
 import parse from './parse.js';
 
 const addProxy = (url) => {
@@ -79,9 +79,9 @@ const loadRss = (url, watchedState) => axios.get(addProxy(url))
   });
 
 const validateUrl = (url, feeds) => yup.string()
-  .required('required')
-  .url('invalid')
-  .notOneOf(feeds.map((feed) => feed.url), 'alreadyExists')
+  .required()
+  .url()
+  .notOneOf(feeds.map((feed) => feed.url))
   .validate(url);
 
 export default () => {
@@ -95,9 +95,12 @@ export default () => {
   };
 
   yup.setLocale({
+    mixed: {
+      required: () => 'required',
+      notOneOf: () => 'alreadyExists',
+    },
     string: {
       url: () => 'invalid',
-      required: () => 'required',
     },
   });
 
@@ -106,9 +109,7 @@ export default () => {
     .init({
       lng: 'ru',
       debug: false,
-      resources: {
-        ru,
-      },
+      resources,
     })
     .then((t) => {
       const watchedState = initView(state, t);

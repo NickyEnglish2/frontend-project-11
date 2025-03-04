@@ -119,11 +119,12 @@ export default () => {
       const formElement = document.querySelector('form');
       formElement?.addEventListener('submit', (e) => {
         e.preventDefault();
-        watchedState.error = null;
-        watchedState.status = 'loading';
 
         const formData = new FormData(e.target);
         const url = formData.get('url-input');
+
+        watchedState.error = null;
+        watchedState.status = 'loading';
 
         validateUrl(url, watchedState.feeds)
           .then(() => { loadRss(url, watchedState); })

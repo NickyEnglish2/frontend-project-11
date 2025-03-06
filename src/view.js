@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 
-const displayStatus = (status, error, i18nInstance) => {
+const renderStatus = (status, error, i18nInstance) => {
   const input = document.querySelector('#url-input');
   const feedback = document.querySelector('.feedback');
   const submitBtn = document.querySelector('button[type="submit"]');
@@ -87,7 +87,7 @@ const renderFeeds = (state) => {
   list.replaceChildren(...children);
 };
 
-const updatePostStyle = (state) => {
+const renderPostStyle = (state) => {
   document.querySelectorAll('.posts a[data-id]').forEach((link) => {
     const isViewed = state.viewedPostsIds.includes(link.dataset.id);
     link.classList.toggle('fw-bold', !state.viewedPostsIds.includes(link.dataset.id));
@@ -96,7 +96,7 @@ const updatePostStyle = (state) => {
   });
 };
 
-const updateModalContent = (state) => {
+const renderModalContent = (state) => {
   if (state.modalPostId !== null) {
     const post = state.posts.find(({ id }) => id === state.modalPostId);
     if (post) {
@@ -110,7 +110,7 @@ const updateModalContent = (state) => {
 const initView = (state, i18nInstance) => onChange(state, (path, value) => {
   switch (path) {
     case 'status':
-      displayStatus(value, state.error, i18nInstance);
+      renderStatus(value, state.error, i18nInstance);
       break;
     case 'posts':
       renderPosts(state, i18nInstance);
@@ -119,10 +119,10 @@ const initView = (state, i18nInstance) => onChange(state, (path, value) => {
       renderFeeds(state);
       break;
     case 'viewedPostsIds':
-      updatePostStyle(state);
+      renderPostStyle(state);
       break;
     case 'modalPostId':
-      updateModalContent(state);
+      renderModalContent(state);
       break;
     default:
       break;

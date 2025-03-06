@@ -1,9 +1,11 @@
 import onChange from 'on-change';
 
-const renderStatus = (status, error, i18nInstance) => {
+const renderStatus = (state, i18nInstance) => {
   const input = document.querySelector('#url-input');
   const feedback = document.querySelector('.feedback');
   const submitBtn = document.querySelector('button[type="submit"]');
+  const { error } = state;
+  const { status } = state;
 
   switch (status) {
     case 'loading':
@@ -107,10 +109,10 @@ const renderModalContent = (state) => {
   }
 };
 
-const initView = (state, i18nInstance) => onChange(state, (path, value) => {
+const initView = (state, i18nInstance) => onChange(state, (path) => {
   switch (path) {
     case 'status':
-      renderStatus(value, state.error, i18nInstance);
+      renderStatus(state, i18nInstance);
       break;
     case 'posts':
       renderPosts(state, i18nInstance);

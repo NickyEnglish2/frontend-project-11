@@ -1,9 +1,7 @@
 import onChange from 'on-change';
 
-const renderStatus = (state, i18nInstance) => {
-  const input = document.querySelector('#url-input');
-  const feedback = document.querySelector('.feedback');
-  const submitBtn = document.querySelector('button[type="submit"]');
+const renderStatus = (state, elements, i18nInstance) => {
+  const { input, feedback, submitBtn } = elements;
   const { error } = state;
   const { status } = state;
 
@@ -38,8 +36,8 @@ const renderStatus = (state, i18nInstance) => {
   }
 };
 
-const renderPosts = (state, nextInstance) => {
-  const list = document.querySelector('.posts ul');
+const renderPosts = (state, elements, nextInstance) => {
+  const { postsList } = elements;
 
   const children = state.posts.map((post) => {
     const li = document.createElement('li');
@@ -64,11 +62,11 @@ const renderPosts = (state, nextInstance) => {
     return li;
   });
 
-  list.replaceChildren(...children);
+  postsList.replaceChildren(...children);
 };
 
-const renderFeeds = (state) => {
-  const list = document.querySelector('.feeds ul');
+const renderFeeds = (state, elements) => {
+  const { feedsList } = elements;
 
   const children = state.feeds.map((feed) => {
     const li = document.createElement('li');
@@ -86,45 +84,49 @@ const renderFeeds = (state) => {
     return li;
   });
 
-  list.replaceChildren(...children);
+  feedsList.replaceChildren(...children);
 };
 
-const renderPostStyle = (state) => {
-  document.querySelectorAll('.posts a[data-id]').forEach((link) => {
+const renderPostStyle = (state, elements) => {
+  const { postsList } = elements;
+
+  postsList.querySelectorAll('a[data-id]').forEach((link) => {
     const isViewed = state.viewedPostsIds.includes(link.dataset.id);
-    link.classList.toggle('fw-bold', !state.viewedPostsIds.includes(link.dataset.id));
+    link.classList.toggle('fw-bold', !isViewed);
     link.classList.toggle('fw-normal', isViewed);
     link.classList.toggle('link-secondary', isViewed);
   });
 };
 
-const renderModalContent = (state) => {
+const renderModalContent = (state, elements) => {
+  const { modalTitle, modalBody, fullArticleLink } = elements;
+
   if (state.modalPostId !== null) {
     const post = state.posts.find(({ id }) => id === state.modalPostId);
     if (post) {
-      document.querySelector('.modal-title').textContent = post.title;
-      document.querySelector('.modal-body').textContent = post.description;
-      document.querySelector('a.full-article').setAttribute('href', post.link);
+      modalTitle.textContent = post.title;
+      modalBody.textContent = post.description;
+      fullArticleLink.setAttribute('href', post.link);
     }
   }
 };
 
-const initView = (state, i18nInstance) => onChange(state, (path) => {
+const initView = (state, elements, i18nInstance) => onChange(state, (path) => {
   switch (path) {
     case 'status':
-      renderStatus(state, i18nInstance);
+      renderStatus(state, elements, i18nInstance);
       break;
     case 'posts':
-      renderPosts(state, i18nInstance);
+      renderPosts(state, elements, i18nInstance);
       break;
     case 'feeds':
-      renderFeeds(state);
+      renderFeeds(state, elements);
       break;
     case 'viewedPostsIds':
-      renderPostStyle(state);
+      renderPostStyle(state, elements);
       break;
     case 'modalPostId':
-      renderModalContent(state);
+      renderModalContent(state, elements);
       break;
     default:
       break;

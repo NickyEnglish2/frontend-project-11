@@ -85,6 +85,19 @@ const validateUrl = (url, feeds) => yup.string()
   .validate(url);
 
 export default () => {
+  const elements = {
+    form: document.querySelector('form'),
+    input: document.querySelector('#url-input'),
+    feedback: document.querySelector('.feedback'),
+    submitBtn: document.querySelector('button[type="submit"]'),
+    postsList: document.querySelector('.posts ul'),
+    feedsList: document.querySelector('.feeds ul'),
+    postsContainer: document.querySelector('.posts'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalBody: document.querySelector('.modal-body'),
+    fullArticleLink: document.querySelector('a.full-article'),
+  };
+
   const state = {
     feeds: [],
     posts: [],
@@ -112,12 +125,11 @@ export default () => {
       resources,
     })
     .then((t) => {
-      const watchedState = initView(state, t);
+      const watchedState = initView(state, elements, t);
 
       updatePosts(watchedState);
 
-      const formElement = document.querySelector('form');
-      formElement?.addEventListener('submit', (e) => {
+      elements.form?.addEventListener('submit', (e) => {
         e.preventDefault();
 
         const formData = new FormData(e.target);
@@ -147,7 +159,6 @@ export default () => {
         watchedState.modalPostId = postId;
       };
 
-      const posts = document.querySelector('.posts');
-      posts.addEventListener('click', handlePostClick);
+      elements.postsContainer.addEventListener('click', handlePostClick);
     });
 };

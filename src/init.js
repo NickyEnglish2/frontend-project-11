@@ -40,7 +40,7 @@ const updatePosts = (watchedState) => {
   });
 };
 
-const loadRss = (url, watchedState) => axios.get(addProxy(url))
+const loadRss = (url, watchedState, elements) => axios.get(addProxy(url))
   .then(({ data }) => {
     const parsedData = parse(data.contents);
 
@@ -61,6 +61,8 @@ const loadRss = (url, watchedState) => axios.get(addProxy(url))
     watchedState.status = 'success';
     watchedState.feeds = [...watchedState.feeds, newFeed];
     watchedState.posts = [...newPosts, ...watchedState.posts];
+
+    elements.input.value = '';
   })
   .catch((err) => {
     if (err.isAxiosError) {
@@ -139,7 +141,7 @@ export default () => {
         watchedState.status = 'loading';
 
         validateUrl(url, watchedState.feeds)
-          .then(() => { loadRss(url, watchedState); })
+          .then(() => { loadRss(url, watchedState, elements); })
           .catch((err) => {
             watchedState.error = err.message;
             watchedState.status = 'failed';
